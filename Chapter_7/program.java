@@ -9,6 +9,54 @@ interface TreeVisitorI {
   Object forSplit(TreeD _l, TreeD _r);
 }
 
+class IsFlatV implements TreeVisitorI {
+  public Object forBud(){ return true; }   // text says use "new Boolean(true)" but this is now deprecated
+  public Object forFlat(FruitD _f, TreeD _t){
+    return _t.accept(this);
+  }
+  public Object forSplit(TreeD _l, TreeD _r){
+    return false;                          // text says use "new Boolean(false)" but this is now deprecated
+  }
+}
+
+class IsSplitV implements TreeVisitorI {
+  public Object forBud(){ return true; }   // see note above
+  public Object forFlat(FruitD _f, TreeD _t){ 
+    return false;
+  }
+  public Object forSplit(TreeD _l, TreeD _r){
+    return (Boolean)(_l.accept(this)) && 
+           (Boolean)(_r.accept(this));
+    // text uses booleanValue(), something like the following:
+    //   return ((Boolean)(_l.accept(this))).booleanValue() && 
+    //          ((Boolean)(_r.accept(this))).booleanValue();
+  }
+}
+
+class OccursV implements TreeVisitorI {
+  FruitD a;
+
+  OccursV(FruitD _a){
+    a = _a;
+  }
+  // -----------------------------
+  public Object forBud(){ return 0; }      // text says use "new Integer(0)" but this is now deprecated
+  public Object forFlat(FruitD _f, TreeD _t){
+    if (_f.equals(a)){
+      return ((Integer)(_t.accept(this))) + 1;
+    } else {
+      return ((Integer)(_t.accept(this)));
+    }
+  }
+  public Object forSplit(TreeD _l, TreeD _r){
+    return ((Integer)(_l.accept(this))) + 
+           ((Integer)(_r.accept(this)));
+  }
+
+  // similar to note above under IsSplitV, the text uses intValue(), like:
+  //   return (((Integer)(_t.accept(this)))).intValue() + 1;
+}
+
 interface bTreeVisitorI {
   boolean forBud();
   boolean forFlat(FruitD _f, TreeD _t);
@@ -260,6 +308,9 @@ class Main {
     System.out.println("t1 sub Apple for Fig = " + t1.accept(new tSubstV(new Apple(),
                                                                           new Fig())));
     System.out.println("t1 count Figs = " + t1.accept(new iOccursV(new Fig())));
+    System.out.println("t1 is flat = " + t1.accept(new IsFlatV()));
+    System.out.println("t1 is split = " + t1.accept(new IsSplitV()));
+    System.out.println("t1 count Figs = " + t1.accept(new OccursV(new Fig())));
 
     System.out.println("-----------------------------");
     TreeD t2 = new Flat(new Pear(), 
@@ -272,6 +323,9 @@ class Main {
     System.out.println("t2 sub Apple for Fig = " + t2.accept(new tSubstV(new Apple(),
                                                                           new Fig())));
     System.out.println("t2 count Figs = " + t2.accept(new iOccursV(new Fig())));
+    System.out.println("t2 is flat = " + t2.accept(new IsFlatV()));
+    System.out.println("t2 is split = " + t2.accept(new IsSplitV()));
+    System.out.println("t2 count Figs = " + t2.accept(new OccursV(new Fig())));
 
     System.out.println("-----------------------------");
     TreeD t3 = new Split(new Bud(), 
@@ -286,6 +340,9 @@ class Main {
     System.out.println("t3 sub Apple for Fig = " + t3.accept(new tSubstV(new Apple(),
                                                                           new Fig())));
     System.out.println("t3 count Figs = " + t3.accept(new iOccursV(new Fig())));
+    System.out.println("t3 is flat = " + t3.accept(new IsFlatV()));
+    System.out.println("t3 is split = " + t3.accept(new IsSplitV()));
+    System.out.println("t3 count Figs = " + t3.accept(new OccursV(new Fig())));
 
     System.out.println("-----------------------------");
     TreeD t4 = new Split(new Split(new Bud(), 
@@ -302,6 +359,9 @@ class Main {
     System.out.println("t4 sub Apple for Fig = " + t4.accept(new tSubstV(new Apple(),
                                                                           new Fig())));
     System.out.println("t4 count Figs = " + t4.accept(new iOccursV(new Fig())));
+    System.out.println("t4 is flat = " + t4.accept(new IsFlatV()));
+    System.out.println("t4 is split = " + t4.accept(new IsSplitV()));
+    System.out.println("t4 count Figs = " + t4.accept(new OccursV(new Fig())));
 
     System.out.println("-----------------------------");
     TreeD t5 = new Bud();
@@ -313,6 +373,9 @@ class Main {
     System.out.println("t5 sub Apple for Fig = " + t5.accept(new tSubstV(new Apple(),
                                                                           new Fig())));
     System.out.println("t5 count Figs = " + t5.accept(new iOccursV(new Fig())));
+    System.out.println("t5 is flat = " + t5.accept(new IsFlatV()));
+    System.out.println("t5 is split = " + t5.accept(new IsSplitV()));
+    System.out.println("t5 count Figs = " + t5.accept(new OccursV(new Fig())));
 
     System.out.println("-----------------------------");
     TreeD t6 = new Split(new Split(new Bud(),
@@ -329,6 +392,9 @@ class Main {
     System.out.println("t6 sub Apple for Fig = " + t6.accept(new tSubstV(new Apple(),
                                                                           new Fig())));
     System.out.println("t6 count Figs = " + t6.accept(new iOccursV(new Fig())));
+    System.out.println("t6 is flat = " + t6.accept(new IsFlatV()));
+    System.out.println("t6 is split = " + t6.accept(new IsSplitV()));
+    System.out.println("t6 count Figs = " + t6.accept(new OccursV(new Fig())));
 
     System.out.println("-----------------------------");
     TreeD t7 = new Split(new Bud(),
@@ -341,6 +407,9 @@ class Main {
     System.out.println("t7 sub Apple for Fig = " + t7.accept(new tSubstV(new Apple(),
                                                                           new Fig())));
     System.out.println("t7 count Figs = " + t7.accept(new iOccursV(new Fig())));
+    System.out.println("t7 is flat = " + t7.accept(new IsFlatV()));
+    System.out.println("t7 is split = " + t7.accept(new IsSplitV()));
+    System.out.println("t7 count Figs = " + t7.accept(new OccursV(new Fig())));
 
     System.out.println("-----------------------------");
     TreeD t8 = new Split(new Split(new Flat(new Fig(),
@@ -359,5 +428,8 @@ class Main {
     System.out.println("t8 sub Apple for Fig = " + t8.accept(new tSubstV(new Apple(),
                                                                           new Fig())));
     System.out.println("t8 count Figs = " + t8.accept(new iOccursV(new Fig())));
+    System.out.println("t8 is flat = " + t8.accept(new IsFlatV()));
+    System.out.println("t8 is split = " + t8.accept(new IsSplitV()));
+    System.out.println("t8 count Figs = " + t8.accept(new OccursV(new Fig())));
   }
 }
