@@ -77,6 +77,88 @@ class Const extends ExprD {
   }
 }
 
+// ======================================
+abstract class SetD {
+  SetD add(int _i){
+    if (mem(_i)){
+      return this;
+    } else {
+      return new Add(_i, this);
+    }
+  }
+
+  abstract boolean mem(int _i);
+  abstract SetD plus(SetD _s);
+  abstract SetD diff(SetD _s);
+  abstract SetD prod(SetD _s);
+}
+
+class Empty extends SetD {
+  boolean mem(int _i){
+    return false;
+  }
+
+  SetD plus(SetD _s){
+    return _s;
+  }
+
+  SetD diff(SetD _s){
+    return new Empty();
+  }
+
+  SetD prod(SetD _s){
+    return new Empty();
+  }
+
+  public String toString(){
+    return "new " + getClass().getName() + "()";
+  }
+}
+
+class Add extends SetD {
+  int i;
+  SetD s;
+
+  Add(int _i, SetD _s){
+    i = _i;
+    s = _s;
+  }
+
+  // -----------------------------
+  boolean mem(int _i){
+    if (i == _i){
+      return true;
+    } else {
+      return s.mem(_i);
+    }
+  }
+
+  SetD plus(SetD _s){
+    return s.plus(_s.add(i));
+  }
+
+  SetD diff(SetD _s){
+    if (_s.mem(i)){
+      return s.diff(_s);
+    } else {
+      return s.diff(_s).add(i);
+    }
+  }
+
+  SetD prod(SetD _s){
+    if (_s .mem(i)){
+      return s.prod(_s).add(i);
+    } else {
+      return s.prod(_s);
+    }
+  }
+
+  public String toString(){
+    return "new " + getClass().getName() + "(" + i + ", " + s + ")";
+  }
+}
+
+// ======================================
 interface ExprVisitorI {
   Object forPlus(ExprD _l, ExprD _r);
   Object forDiff(ExprD _l, ExprD _r);
@@ -123,18 +205,42 @@ class IntEvalV implements ExprVisitorI {
   }
 }
 
+class SetEvalV extends IntEvalV {
+  Object plus(Object _l, Object _r){
+    return ((SetD)_l).plus((SetD)_r);
+  }
+
+  Object diff(Object _l, Object _r){
+    return ((SetD)_l).diff((SetD)_r);
+  }
+
+  Object prod(Object _l, Object _r){
+    return ((SetD)_l).prod((SetD)_r);
+  }
+}
+
 // ======================================
 class Main {
   public static void main(String[] args){
     System.out.println("-----------------------------");
-
     ExprD e1 = new Plus(new Const(3), new Const(2));
+    System.out.println(e1);
     System.out.println(e1.accept(new IntEvalV()));
 
+    System.out.println("-----------------------------");
     ExprD e2 = new Plus(new Const(7),
                         new Prod(new Diff(new Const(4),
                                           new Const(3)),
                                  new Const(5)));
+    System.out.println(e2);
     System.out.println(e2.accept(new IntEvalV()));
+
+    System.out.println("-----------------------------");
+    SetD s1 = new Add(4, 
+                      new Add(3, 
+                              new Add(10, 
+                                      new Empty())));
+    System.out.println(s1);
+    //System.out.println(s1.accept(new SetEvalV()));
   }
 }
