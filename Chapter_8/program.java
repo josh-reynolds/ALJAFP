@@ -188,23 +188,7 @@ abstract class EvalD implements ExprVisitorI {
   abstract Object prod(Object _l, Object _r);
 }
 
-class IntEvalV implements ExprVisitorI {
-  public Object forPlus(ExprD _l, ExprD _r){
-    return plus(_l.accept(this), _r.accept(this));
-  }
-
-  public Object forDiff(ExprD _l, ExprD _r){
-    return diff(_l.accept(this), _r.accept(this));
-  }
-
-  public Object forProd(ExprD _l, ExprD _r){
-    return prod(_l.accept(this), _r.accept(this));
-  }
-
-  public Object forConst(Object _c){
-    return _c;
-  }
-
+class IntEvalV extends EvalD {
   Object plus(Object _l, Object _r){
     // text uses Integer (now deprecated) and Integer.intValue() like this:
     //return new Integer(((Integer)_l).intValue() + 
@@ -227,7 +211,7 @@ class IntEvalV implements ExprVisitorI {
   }
 }
 
-class SetEvalV extends IntEvalV {
+class SetEvalV extends EvalD {
   Object plus(Object _l, Object _r){
     return ((SetD)_l).plus((SetD)_r);
   }
