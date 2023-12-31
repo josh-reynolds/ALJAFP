@@ -166,6 +166,28 @@ interface ExprVisitorI {
   Object forConst(Object _c);
 }
 
+abstract class EvalD implements ExprVisitorI {
+  public Object forPlus(ExprD _l, ExprD _r){
+    return plus(_l.accept(this), _r.accept(this));
+  }
+
+  public Object forDiff(ExprD _l, ExprD _r){
+    return diff(_l.accept(this), _r.accept(this));
+  }
+
+  public Object forProd(ExprD _l, ExprD _r){
+    return prod(_l.accept(this), _r.accept(this));
+  }
+
+  public Object forConst(Object _c){
+    return _c;
+  }
+
+  abstract Object plus(Object _l, Object _r);
+  abstract Object diff(Object _l, Object _r);
+  abstract Object prod(Object _l, Object _r);
+}
+
 class IntEvalV implements ExprVisitorI {
   public Object forPlus(ExprD _l, ExprD _r){
     return plus(_l.accept(this), _r.accept(this));
@@ -242,5 +264,12 @@ class Main {
                                       new Empty())));
     System.out.println(s1);
     //System.out.println(s1.accept(new SetEvalV()));
+    // SetD does not have accept() so this is invalid
+
+    System.out.println("-----------------------------");
+    ExprD e3 = new Prod(new Const(new Empty().add(7)),
+                       new Const(new Empty().add(3)));
+    System.out.println(e3);
+    System.out.println(e3.accept(new SetEvalV()));
   }
 }
