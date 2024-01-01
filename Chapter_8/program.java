@@ -226,6 +226,116 @@ class SetEvalV extends EvalD {
 }
 
 // ======================================
+abstract class FishD{
+  public String toString(){
+    return "new " + getClass().getName() + "()";
+  }
+}
+class Mackerel extends FishD{
+  public boolean equals(Object _o){
+    return (_o instanceof Mackerel);
+  }
+}
+class Tuna extends FishD{
+  public boolean equals(Object _o){
+    return (_o instanceof Tuna);
+  }
+}
+class Cod extends FishD{
+  public boolean equals(Object _o){
+    return (_o instanceof Cod);
+  }
+}
+class Anchovy extends FishD{
+  public boolean equals(Object _o){
+    return (_o instanceof Anchovy);
+  }
+}
+
+// ======================================
+abstract class PieD{
+  abstract PieD accept(PieVisitorI _ask);
+}
+
+class Bot extends PieD {
+  PieD accept(PieVisitorI _ask){ return _ask.forBot(); }
+
+  public String toString(){
+    return "new " + getClass().getName() + "()";
+  }
+}
+
+class Top extends PieD {
+  Object t;
+  PieD r;
+
+  Top(Object _t, PieD _r){
+    t = _t;
+    r = _r;
+  }
+  // -----------------------------
+  PieD accept(PieVisitorI _ask){ return _ask.forTop(t, r); }
+
+  public String toString(){
+    return "new " + getClass().getName() + "(" + t + ", " + r + ")";
+  }
+}
+
+// ======================================
+interface PieVisitorI {
+  abstract PieD forBot();
+  abstract PieD forTop(Object _t, PieD _r);
+}
+
+class SubstV implements PieVisitorI {
+  Object n;
+  Object o;
+
+  SubstV(Object _n, Object _o){
+    n = _n;
+    o = _o;
+  }
+
+  // -----------------------------
+  public PieD forBot(){ return new Bot(); }
+
+  public PieD forTop(Object _t, PieD _r){
+    if (o.equals(_t)){
+      return new Top(n, _r.accept(this));
+    } else {
+      return new Top(_t, _r.accept(this));
+    }
+  }
+}
+
+class LtdSubstV implements PieVisitorI {
+  int c;
+  Object n;
+  Object o;
+
+  LtdSubstV(int _c, Object _n, Object _o){
+    c = _c;
+    n = _n;
+    o = _o;
+  }
+
+  // -----------------------------
+  public PieD forBot(){ return new Bot(); }
+
+  public PieD forTop(Object _t, PieD _r){
+    if (c == 0){
+      return new Top(_t, _r);
+    } else {
+      if (o.equals(_t)){
+        return new Top(n, _r.accept(new LtdSubstV(c-1, n, o)));
+      } else {
+        return new Top(_t, _r.accept(this));
+      }
+    }
+  }
+}
+
+// ======================================
 class Main {
   public static void main(String[] args){
     System.out.println("-----------------------------");
@@ -255,5 +365,13 @@ class Main {
                        new Const(new Empty().add(3)));
     System.out.println(e3);
     System.out.println(e3.accept(new SetEvalV()));
+
+    System.out.println("-----------------------------");
+    PieD p1 = new Top(new Cod(), 
+                      new Top(new Anchovy(), 
+                              new Bot()));
+    System.out.println(p1);
+    System.out.println(p1.accept(new SubstV(new Cod(), new Anchovy())));
+    System.out.println(p1.accept(new SubstV(new Mackerel(), new Cod())));
   }
 }
