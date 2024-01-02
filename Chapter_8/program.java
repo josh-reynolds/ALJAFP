@@ -301,12 +301,18 @@ abstract class SubstD implements PieVisitorI {
   public abstract PieD forTop(Object _t, PieD _r);
 }
 
-class SubstV extends SubstD {
+class SubstV implements PieVisitorI {
+  Object n;
+  Object o;
+
   SubstV(Object _n, Object _o){
-    super(_n, _o);
+    n = _n;
+    o = _o;
   }
 
   // ----------------------------
+  public PieD forBot(){ return new Bot(); }
+
   public PieD forTop(Object _t, PieD _r){
     if (o.equals(_t)){
       return new Top(n, _r.accept(this));
@@ -316,7 +322,7 @@ class SubstV extends SubstD {
   }
 }
 
-class LtdSubstV extends SubstD {
+class LtdSubstV extends SubstV {
   int c;
 
   LtdSubstV(int _c, Object _n, Object _o){
