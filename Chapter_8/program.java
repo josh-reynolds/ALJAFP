@@ -287,18 +287,26 @@ interface PieVisitorI {
   abstract PieD forTop(Object _t, PieD _r);
 }
 
-class SubstV implements PieVisitorI {
+abstract class SubstD implements PieVisitorI {
   Object n;
   Object o;
 
-  SubstV(Object _n, Object _o){
+  SubstD(Object _n, Object _o){
     n = _n;
     o = _o;
   }
 
-  // -----------------------------
+  // ----------------------------
   public PieD forBot(){ return new Bot(); }
+  public abstract PieD forTop(Object _t, PieD _r);
+}
 
+class SubstV extends SubstD {
+  SubstV(Object _n, Object _o){
+    super(_n, _o);
+  }
+
+  // ----------------------------
   public PieD forTop(Object _t, PieD _r){
     if (o.equals(_t)){
       return new Top(n, _r.accept(this));
@@ -308,20 +316,15 @@ class SubstV implements PieVisitorI {
   }
 }
 
-class LtdSubstV implements PieVisitorI {
+class LtdSubstV extends SubstD {
   int c;
-  Object n;
-  Object o;
 
   LtdSubstV(int _c, Object _n, Object _o){
+    super(_n, _o);
     c = _c;
-    n = _n;
-    o = _o;
   }
 
   // -----------------------------
-  public PieD forBot(){ return new Bot(); }
-
   public PieD forTop(Object _t, PieD _r){
     if (c == 0){
       return new Top(_t, _r);
