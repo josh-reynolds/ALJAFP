@@ -145,10 +145,32 @@ class Trans extends ShapeD {
   }
 }
 
+class Union extends ShapeD {
+  ShapeD s;
+  ShapeD t;
+
+  Union(ShapeD _s, ShapeD _t){
+    s = _s;
+    t = _t;
+  }
+  //-------------------------------
+  boolean accept(ShapeVisitorI _ask){
+    return ((UnionVisitorI)_ask).forUnion(s, t);
+  }
+
+  public String toString(){
+    return "new " + getClass().getName() + "(" + s + ", " + t + ")";
+  }
+}
+
 interface ShapeVisitorI {
   boolean forCircle(int _r);
   boolean forSquare(int _s);
   boolean forTrans(PointD _q, ShapeD _s);
+}
+
+interface UnionVisitorI extends ShapeVisitorI {
+  boolean forUnion(ShapeD _s, ShapeD _t);
 }
 
 class HasPtV implements ShapeVisitorI {
@@ -156,6 +178,10 @@ class HasPtV implements ShapeVisitorI {
 
   HasPtV(PointD _p){
     p = _p;
+  }
+
+  ShapeVisitorI newHasPt(PointD _p){
+    return new HasPtV(_p);
   }
   //-------------------------------
   public boolean forCircle(int _r){
@@ -167,7 +193,21 @@ class HasPtV implements ShapeVisitorI {
   }
 
   public boolean forTrans(PointD _q, ShapeD _s){
-    return _s.accept(new HasPtV(p.minus(_q)));
+    return _s.accept(newHasPt(p.minus(_q)));
+  }
+}
+
+class UnionHasPtV extends HasPtV implements UnionVisitorI {
+  UnionHasPtV(PointD _p){
+    super(_p);
+  }
+
+  ShapeVisitorI newHasPt(PointD _p){
+    return new UnionHasPtV(_p);
+  }
+  //-------------------------------
+  public boolean forUnion(ShapeD _s, ShapeD _t){
+    return _s.accept(this) || _t.accept(this);
   }
 }
 
@@ -190,14 +230,16 @@ class Main {
     System.out.println(s2.distanceToO());
 
     System.out.println("-----------------------------");
-    System.out.println(new CartesianPt(3, 4).closerToO(new ShadowedCartesianPt(1, 5, 1, 2)));
+    System.out.println(c1.closerToO(new ShadowedCartesianPt(1, 5, 1, 2)));
 
     System.out.println("-----------------------------");
-    Trans t1 = new Trans(new CartesianPt(5, 6), new Circle(10));
+    Trans t1 = new Trans(new CartesianPt(5, 6), 
+                         new Circle(10));
     System.out.println(t1);
 
     System.out.println("-----------------------------");
-    Trans t2 = new Trans(new CartesianPt(5, 6), new Square(10));
+    Trans t2 = new Trans(new CartesianPt(5, 6), 
+                         new Square(10));
     System.out.println(t2);
 
     System.out.println("-----------------------------");
@@ -211,8 +253,23 @@ class Main {
     System.out.println(sq1.accept(new HasPtV(new CartesianPt(10, 10))));
 
     System.out.println("-----------------------------");
-    Trans t3 = new Trans(new CartesianPt(5, 6), new Circle(10));
+    Trans t3 = new Trans(new CartesianPt(5, 6), 
+                         new Circle(10));
     System.out.println(t3);
     System.out.println(t3.accept(new HasPtV(new CartesianPt(10, 10))));
+
+    System.out.println("-----------------------------");
+    Trans t4 = new Trans(new CartesianPt(12, 2), 
+                         new Union(new Square(10),
+                                   new Trans(new CartesianPt(4, 4),
+                                             new Circle(5))));
+    System.out.println(t4);
+
+    System.out.println("-----------------------------");
+    Trans t5 = new Trans(new CartesianPt(3, 7), 
+                         new Union(new Square(10),
+                                   new Circle(10)));
+    System.out.println(t5);
+    System.out.println(t5.accept(new UnionHasPtV(new CartesianPt(13, 17))));
   }
 }
