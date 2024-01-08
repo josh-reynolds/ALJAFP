@@ -136,10 +136,33 @@ class OccursV implements PieVisitorI {
 }
 
 // ======================================
+// text doesn't include these, assumes already present or 
+// easily reconstructible (which is true) - also
+// does not remind us we need to override equals...
+
 abstract class FishD {}
 class Anchovy extends FishD {
   public String toString(){
     return "new " + getClass().getName() + "()";
+  }
+  public boolean equals(Object _o){
+    return _o instanceof Anchovy;
+  }
+}
+class Tuna extends FishD {
+  public String toString(){
+    return "new " + getClass().getName() + "()";
+  }
+  public boolean equals(Object _o){
+    return _o instanceof Tuna;
+  }
+}
+class Salmon extends FishD {
+  public String toString(){
+    return "new " + getClass().getName() + "()";
+  }
+  public boolean equals(Object _o){
+    return _o instanceof Salmon;
   }
 }
 // ======================================
@@ -151,8 +174,25 @@ class Main {
     System.out.println(p1);
 
     System.out.println("-----------------------------");
-    PiemanM pm1 = new PiemanM();
+    PiemanI pm1 = new PiemanM();
     System.out.println(pm1);
     System.out.println(pm1.occTop(new Anchovy()));
+    System.out.println(pm1.addTop(new Anchovy()));
+    System.out.println(pm1.substTop(new Tuna(), new Anchovy()));
+    System.out.println(pm1.occTop(new Anchovy()));
+    System.out.println(pm1.occTop(new Salmon()));
+    //pm1.p = new Bot();   - not exposed by Interface, will not compile
+
+    System.out.println("-----------------------------");
+    PiemanI pm2 = new PiemanM();
+    System.out.println(pm2);
+    System.out.println(pm2.addTop(new Anchovy()));
+    System.out.println(pm2.addTop(new Anchovy()));
+    System.out.println(pm2.addTop(new Salmon()));
+    System.out.println(pm2.addTop(new Tuna()));
+    System.out.println(pm2.addTop(new Tuna()));
+    System.out.println(pm2.substTop(new Tuna(), new Anchovy()));
+    System.out.println(pm2.remTop(new Tuna()));
+    System.out.println(pm2.occTop(new Salmon()));
   }
 }
