@@ -42,7 +42,7 @@ abstract class PieD {
 
 class Bot extends PieD {
   Object accept(PieVisitorI _ask){
-    return _ask.forBot();
+    return _ask.forBot(this);
   }
 
   public String toString(){
@@ -60,7 +60,7 @@ class Top extends PieD {
   }
   //-------------------------------
   Object accept(PieVisitorI _ask){
-    return _ask.forTop(t, r);
+    return _ask.forTop(this);
   }
 
   public String toString(){
@@ -69,8 +69,8 @@ class Top extends PieD {
 }
 
 interface PieVisitorI {
-  Object forBot();
-  Object forTop(Object _t, PieD _r);
+  Object forBot(Bot _that);
+  Object forTop(Top _that);
 }
 
 class RemV implements PieVisitorI {
@@ -80,15 +80,15 @@ class RemV implements PieVisitorI {
     o = _o;
   }
   //-------------------------------
-  public Object forBot(){
-    return new Bot();
+  public Object forBot(Bot _that){
+    return _that;
   }
 
-  public Object forTop(Object _t, PieD _r){
-    if (o.equals(_t)){
-      return _r.accept(this);
+  public Object forTop(Top _that){
+    if (o.equals(_that.t)){
+      return _that.r.accept(this);
     } else {
-      return new Top(_t, (PieD)_r.accept(this));
+      return new Top(_that.t, (PieD)_that.r.accept(this));
     }
   }
 }
@@ -102,15 +102,21 @@ class SubstV implements PieVisitorI {
     o = _o;
   }
   //-------------------------------
-  public Object forBot(){
-    return new Bot();
+  public Object forBot(Bot _that){
+    return _that;
   }
 
-  public Object forTop(Object _t, PieD _r){
-    if (o.equals(_t)){
-      return new Top(n, (PieD)_r.accept(this));
+  public Object forTop(Top _that){
+    if (o.equals(_that.t)){
+      _that.t = n
+      ;
+      _that.r.accept(this)
+      ;
+      return _that;
     } else {
-      return new Top(_t, (PieD)_r.accept(this));
+      _that.r.accept(this)
+      ;
+      return _that;
     }
   }
 }
@@ -122,15 +128,15 @@ class OccursV implements PieVisitorI {
     a = _a;
   }
   //-------------------------------
-  public Object forBot(){
+  public Object forBot(Bot _that){
     return 0;
   }
 
-  public Object forTop(Object _t, PieD _r){
-    if (_t.equals(a)){
-      return ((int)(_r.accept(this))) + 1;
+  public Object forTop(Top _that){
+    if (_that.t.equals(a)){
+      return ((int)(_that.r.accept(this))) + 1;
     } else {
-      return _r.accept(this);
+      return _that.r.accept(this);
     }
   }
 }
