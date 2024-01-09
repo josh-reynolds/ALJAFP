@@ -142,6 +142,82 @@ class OccursV implements PieVisitorI {
 }
 
 // ======================================
+abstract class PointD {
+  int x;
+  int y;
+  
+  PointD(int _x, int _y){
+    x = _x;
+    y = _y;
+  }
+  //-------------------------------
+  boolean closerToO(PointD _p){
+    return distanceToO() <= _p.distanceToO();
+  }
+  
+  PointD minus(PointD _p){
+    return new CartesianPt(x - _p.x, y - _p.y);
+  }
+
+  int moveBy(int _dx, int _dy){
+    x = x + _dx
+    ;
+    y = y + _dy
+    ;
+    return distanceToO();
+  }
+
+  abstract int distanceToO();
+}
+
+class CartesianPt extends PointD {
+  CartesianPt(int _x, int _y){
+    super(_x, _y);
+  }
+  //-------------------------------
+  int distanceToO(){
+    return (int)Math.sqrt((x * x) + (y * y));
+  }
+
+  public String toString(){
+    return "new " + getClass().getName() + "(" + x + ", " + y + ")";
+  }
+}
+
+class ManhattanPt extends PointD {
+  ManhattanPt(int _x, int _y){
+    super(_x, _y);
+  }
+  //-------------------------------
+  int distanceToO(){
+    return x + y;
+  }
+
+  public String toString(){
+    return "new " + getClass().getName() + "(" + x + ", " + y + ")";
+  }
+}
+
+class ShadowedManhattanPt extends ManhattanPt {
+  int dx;
+  int dy;
+
+  ShadowedManhattanPt(int _x, int _y, int _dx, int _dy){
+    super(_x, _y);
+    dx = _dx;
+    dy = _dy;
+  }
+  //-------------------------------
+  int distanceToO(){
+    return super.distanceToO() + dx + dy;
+  }
+
+  public String toString(){
+    return "new " + getClass().getName() + "(" + x + ", " + y + ", " + dx + ", " + dy + ")";
+  }
+}
+
+// ======================================
 // text doesn't include these, assumes already present or 
 // easily reconstructible (which is true) - also
 // does not remind us we need to override equals...
@@ -200,5 +276,18 @@ class Main {
     System.out.println(pm2.substTop(new Tuna(), new Anchovy()));
     System.out.println(pm2.remTop(new Tuna()));
     System.out.println(pm2.occTop(new Salmon()));
+
+    System.out.println("-----------------------------");
+    ManhattanPt m1 = new ManhattanPt(1, 4);
+    System.out.println(m1);
+    System.out.println(m1.distanceToO());
+    System.out.println(m1.moveBy(2,8));
+
+    System.out.println("-----------------------------");
+    ShadowedManhattanPt s1 = new ShadowedManhattanPt(1, 4, 1, 1);
+    System.out.println(s1);
+    System.out.println(s1.distanceToO());
+    System.out.println(s1.moveBy(2,8));
+
   }
 }
